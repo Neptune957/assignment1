@@ -17,13 +17,13 @@
 #include <calcLib.h>
 
 #include "protocol.h"
-#define PORT "4950"  // the port users will be connecting to
+#define PORT 4950  // the port users will be connecting to
 
 #define BACKLOG 1  // how many pending connections queue will hold
 
 
 int main(int argc, char *argv[]){
-  int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
+  int sock_fd, new_fd;  // listen on sock_fd, new connection on new_fd
   struct sockaddr_in server;
   struct sockaddr_in client;
   socklen_t addrlen;
@@ -61,13 +61,6 @@ int main(int argc, char *argv[]){
     exit(1);
   }
   addrlen=sizeof(client);
-
-
-  if (p == NULL)  {
-    fprintf(stderr, "server: failed to bind\n");
-    printf("server: fail to bind the socket\n");
-    exit(1);
-  }
 
   printf("server: waiting for connection...\n");
   char msg[1500];
