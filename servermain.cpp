@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
   struct sockaddr_in client;
   socklen_t addrlen;
 
-  if((sockfd=socket(AF_INET,SOCK_STREAM,0))==-1){
+  if((sock_fd=socket(AF_INET,SOCK_STREAM,0))==-1){
     perror("server: socket");
     printf("server: bind socket error\n");
     exit(1);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
 
   printf("server: setting socket options\n");
   int opt=SO_REUSEADDR;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt,sizeof(opt)) == -1) {
+  if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &opt,sizeof(opt)) == -1) {
     printf("server: set socket error\n");
     perror("setsockopt");
     exit(1);
@@ -48,14 +48,14 @@ int main(int argc, char *argv[]){
   server.sin_addr.s_addr = htonl(INADDR_ANY); 
 
   printf("server: binding socket\n");
-  if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) == -1) {
+  if (bind(sock_fd, (struct sockaddr *)&server, sizeof(server)) == -1) {
     perror("server: bind");
     printf("server: bind socket error\n");
     exit(1);
   }
 
   printf("server: listening to socekt\n");
-  if (listen(sockfd, BACKLOG) == -1) {
+  if (listen(sock_fd, BACKLOG) == -1) {
     perror("listen");
     printf("server:fail to listen to the socket\n");
     exit(1);
