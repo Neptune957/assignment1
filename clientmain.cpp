@@ -15,73 +15,54 @@
 #include <calcLib.h>
 #include "protocol.h"
 
-#define SERVERPORT "4950"	// the port users will be connecting to
+#define SERVERPORT 4950	// the port users will be connecting to
 #define MAXDATASIZE 1400
 
-void *get_in_addr(struct sockaddr *sa)
-{
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
-
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
 
 int main(int argc, char *argv[]){
   
   	/* Do magic */
-	int sockfd;
-	struct addrinfo hints, *servinfo, *p;
-	int rv;
-	int numbytes;  
+	int sockfd,num;
 	char buf[MAXDATASIZE];
+	struct hostent *he;
+	struct sockaddr_in server;
+
+	int numbytes;  
+
 	char s[INET6_ADDRSTRLEN];
 
 	if (argc != 2) {
-	  fprintf(stderr,"usage: %s hostname (%d)\n",argv[0],argc);
-	  exit(1);
-	}
-
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_DGRAM;
-
-	if ((rv = getaddrinfo(argv[1], SERVERPORT, &hints, &servinfo)) != 0) {
-		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		printf("client: server address reaping  failure\n");
-		return 1;
-	}
-
-	// loop through all the results and make a socket
-	for(p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
-			perror("talker: socket");
-			continue;
-		}
-
-		break;
-	}
-
-	if (p == NULL) {
-		fprintf(stderr, "clientmain: failed to create socket\n");
-		printf("client: socket creation failure\n");
-		return 2;
-	}
-
-	if (connect(sockfd,p->ai_addr, p->ai_addrlen) < 0 ) {
-	  	perror("clientmain: connect error.\n");
-	  	printf("client: connetion failure\n");
+	  	printf("Error: argument number wrong. dir: %s argument num: (%d)\n",argv[0],argc);
 	  	exit(1);
 	}
 
-	inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),s, sizeof s);
-	printf("client: connection established, connect to %s\n", s);
+	printf("client: getting server info\n");
+	if((he=gethostbyname(argv[1]))==NULL){
+		printf("Error: client cannot get server host info\n");
+		exit(1);
+	}
 
+	printf("client: creating a socket\n");
+	if((sockfd=socket(AF_INET,SOCK_STREAM,0))==-1){
+		printf("Error: client cannot create a socket\n");
+		exit(1);
+	}
 
-	freeaddrinfo(servinfo);
+	bzero(&server,sizeof(server));
+	server.sin_family=AF_INET;
+	server.sin_port=htons(PORT);
+	server.sin_addr=*((struct in_addr*)he->h_addr);
+
+	printf("client: connecting to server\n");
+	if(connect(sockfd,(struct sockaddr*)&server,sizeof(server))==-1){
+		printf("Error: client cannot connect to server\n");  
+       	exit(1);
+	}
+
+	printf("client: establish a connection to server %s:%d\n",inet_ntoa(server.sin_addr),htons(server.sin_port));
 
 	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-	  	printf("Error in receiving data from server\n");
+	  	printf("Error:client cannot receive data from server\n");
 	  	exit(1);
 	}
 	
