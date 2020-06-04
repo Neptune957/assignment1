@@ -68,7 +68,7 @@ int main(int argc, char *argv[]){
 	
 	buf[numbytes] = '\0';
 	
-	printf("server: support communicating protocols as follows:\n\"%s\"\n",buf);
+	printf("server: support communicating protocols as follows:\n    \"%s\"\n",buf);
 	char *serverSupportProtocol;
 	bool supportServerProtocol=false;
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]){
 			fresult=value1/value2;
 		}
 		sprintf(answer,"%8.8g\0",fresult);
-		printf("client: receive command \"%s %f %f\" from server\n    Send answer %s back to server\n",operation,value1,value2,answer);
+		printf("client: receive command \"%s %f %f\" from server\nclient:send answer %s back to server\n",operation,value1,value2,answer);
 	}else{
 		int value1=atoi(strtok(NULL, " "));
 		int value2=atoi(strtok(NULL, " "));
@@ -129,18 +129,19 @@ int main(int argc, char *argv[]){
 			result=value1/value2;
 		}
 		sprintf(answer,"%d\0",result);
-		printf("client: receive command \"%s %d %d\" from server\n    Send answer %s back to server\n",operation,value1,value2,answer);
+		printf("client: receive command \"%s %d %d\" from server\nclient:send answer %s back to server\n",operation,value1,value2,answer);
 	}
 	send(sockfd, answer, sizeof(answer), 0);
 
-	memset(buf,0,sizeof(buf));
-	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+	char finalReceive[100];
+	memset(finalReceive,0,sizeof(finalReceive));
+	if ((numbytes = recv(sockfd, finalReceive, 100-1, 0)) == -1) {
 	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
 	}
-	buf[numbytes] = '\0';
-	printf("server: your answer is %s\n",buf);
+	finalReceive[numbytes] = '\0';
+	printf("server: your answer is %s\n",finalReceive);
 
 	close(sockfd);
 	printf("client: program shutdown.\n");
