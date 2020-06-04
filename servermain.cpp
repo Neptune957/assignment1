@@ -18,6 +18,7 @@
 
 #include "protocol.h"
 #define PORT 4950  // the port users will be connecting to
+#define MAXDATASIZE 1500
 
 #define BACKLOG 1  // how many pending connections queue will hold
 

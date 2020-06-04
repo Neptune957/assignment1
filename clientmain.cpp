@@ -16,7 +16,7 @@
 #include "protocol.h"
 
 #define PORT 4950	// the port users will be connecting to
-#define MAXDATASIZE 1400
+#define MAXDATASIZE 1500
 
 
 int main(int argc, char *argv[]){
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]){
 
 	printf("client: establish a connection to server %s:%d\n",inet_ntoa(server.sin_addr),htons(server.sin_port));
 
-	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
 	  	printf("Error:client cannot receive data from server\n");
 	  	exit(1);
 	}
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]){
    	}
 
    	memset(buf,0,sizeof(buf));
-   	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+   	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
 	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]){
 			fresult=value1/value2;
 		}
 		sprintf(answer,"%8.8g\0",fresult);
-		printf("client: receive command \"%s %f %f\" from server\nclient:send answer %s back to server\n",operation,value1,value2,answer);
+		printf("client: receive command \"%s %f %f\" from server\nclient: send answer %s back to server\n",operation,value1,value2,answer);
 	}else{
 		int value1=atoi(strtok(NULL, " "));
 		int value2=atoi(strtok(NULL, " "));
@@ -129,19 +129,18 @@ int main(int argc, char *argv[]){
 			result=value1/value2;
 		}
 		sprintf(answer,"%d\0",result);
-		printf("client: receive command \"%s %d %d\" from server\nclient:send answer %s back to server\n",operation,value1,value2,answer);
+		printf("client: receive command \"%s %d %d\" from server\nclient: send answer %s back to server\n",operation,value1,value2,answer);
 	}
 	send(sockfd, answer, sizeof(answer), 0);
 
-	char finalReceive[100];
-	memset(finalReceive,0,sizeof(finalReceive));
-	if ((numbytes = recv(sockfd, finalReceive, 100-1, 0)) == -1) {
+	memset(buf,0,sizeof(buf));
+	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
 	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
 	}
-	finalReceive[numbytes] = '\0';
-	printf("server: your answer is %s\n",finalReceive);
+	buf[numbytes] = '\0';
+	printf("server: your answer is %s\n",buf);
 
 	close(sockfd);
 	printf("client: program shutdown.\n");
