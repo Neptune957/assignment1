@@ -15,7 +15,7 @@
 #include <calcLib.h>
 #include "protocol.h"
 
-#define SERVERPORT 4950	// the port users will be connecting to
+#define PORT 4950	// the port users will be connecting to
 #define MAXDATASIZE 1400
 
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]){
 	
 	buf[numbytes] = '\0';
 	
-	printf("server: support communicating protocols as follows:\n '%s'\n",buf);
+	printf("server: support communicating protocols as follows:\n\"%s\"\n",buf);
 	char *serverSupportProtocol;
 	bool supportServerProtocol=false;
 
@@ -79,13 +79,13 @@ int main(int argc, char *argv[]){
      		char *response="OK";
      		send(sockfd, response, sizeof(response), 0);
      		supportServerProtocol=true;
-     		printf("client: OK");
+     		printf("client: OK, achieve agreement on communicating protocol with server\n");
      		break;
      	}
       	serverSupportProtocol = strtok(NULL, "\n");
    	}
    	if(!supportServerProtocol){
-   		printf("Client do not support server-side communicating protocol");
+   		printf("Client do not support server-side communicating protocol\n");
    		send(sockfd, "Not OK", 7, 0);
    		close(sockfd);
    		exit(1);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
 
    	memset(buf,0,sizeof(buf));
    	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-	  	printf("Error in receiving data from server");
+	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
 	}
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]){
 			fresult=value1/value2;
 		}
 		sprintf(answer,"%8.8g\0",fresult);
-		printf("client: receive command %s and value %f , %f from server\nSend answer %s back to server",operation,value1,value2,answer);
+		printf("client: receive command \"%s %f %f\" from server\n    Send answer %s back to server",operation,value1,value2,answer);
 	}else{
 		int value1=atoi(strtok(NULL, " "));
 		int value2=atoi(strtok(NULL, " "));
@@ -129,13 +129,13 @@ int main(int argc, char *argv[]){
 			result=value1/value2;
 		}
 		sprintf(answer,"%d\0",result);
-		printf("client: receive command %s and value %d , %d from server\nSend answer %s back to server",operation,value1,value2,answer);
+		printf("client: receive command %s and value %d , %d from server\nSend answer %s back to server\n",operation,value1,value2,answer);
 	}
 	send(sockfd, answer, sizeof(answer), 0);
 
 	memset(buf,0,sizeof(buf));
 	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-	  	printf("Error in receiving data from server");
+	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
 	}

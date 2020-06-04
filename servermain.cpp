@@ -112,7 +112,7 @@ int main(int argc, char *argv[]){
         }else{
           fresult=value1/value2;
         }
-        sprintf(operationCommand,"%s %f %f\0",operationCommand,value1,value2);
+        sprintf(operationCommand,"%s %f %f\0",operation,value1,value2);
       }else{
         int value1=randomInt(),value2=randomInt();
         if(operation[0]=='a'){
@@ -124,9 +124,9 @@ int main(int argc, char *argv[]){
         }else{
           result=value1/value2;
         }
-        sprintf(operationCommand,"%s %d %d\0",operationCommand,value1,value2);
+        sprintf(operationCommand,"%s %d %d\0",operation,value1,value2);
       }
-      printf("server: send \"%s\" to client",operationCommand);
+      printf("server: send \"%s\" to client\n",operationCommand);
 
       if (send(new_fd, operationCommand, MAXSZ, 0) == -1){
         perror("send");
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]){
       char *finalResponse;
       char resultString[MAXSZ];
 
-      printf("client: my answer to \"operationCommand\" is: %s\n",msg);
+      printf("client: my answer to \"%s\" is: %s\n",operationCommand,msg);
       if(operation[0]=='f'){
         sprintf(resultString,"%8.8g\0",fresult);
       }else{
@@ -156,6 +156,8 @@ int main(int argc, char *argv[]){
         printf("server: wrong answer\n");
       }
       send(new_fd, finalResponse, sizeof(finalResponse), 0);
+
+      sleep(1);
       shutdown(new_fd, SHUT_RDWR);
       close(new_fd);
       printf("server: mission has done. stop connection.\n");
