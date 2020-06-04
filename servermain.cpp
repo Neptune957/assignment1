@@ -138,7 +138,6 @@ int main(int argc, char *argv[]){
 
       memset(msg,0,MAXSZ);
       readSize=recv(new_fd,&msg,MAXSZ,0);
-      char *finalResponse[10];
       char resultString[MAXSZ];
 
       printf("client: my answer to \"%s\" is: %s\n",operationCommand,msg);
@@ -149,16 +148,14 @@ int main(int argc, char *argv[]){
       }
 
       if(strcmp(msg,resultString)==0){
-        finalResponse="Right";
+        send(new_fd, "Right", 6, 0);
         printf("server: right answer\n");
       }else{
-        finalResponse="Wrong";
+        send(new_fd, "Wrong", 6, 0);
         printf("server: wrong answer\n");
       }
-      send(new_fd, finalResponse, sizeof(finalResponse), 0);
 
       sleep(1);
-      shutdown(new_fd, SHUT_RDWR);
       close(new_fd);
       printf("server: mission has done. stop connection.\n");
       break;
