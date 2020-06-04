@@ -115,7 +115,7 @@ int main(int argc, char *argv[]){
 			fresult=value1/value2;
 		}
 		sprintf(answer,"%8.8g\0",fresult);
-		printf("client: receive command \"%s %f %f\" from server\n    Send answer %s back to server",operation,value1,value2,answer);
+		printf("client: receive command \"%s %f %f\" from server\n    Send answer %s back to server\n",operation,value1,value2,answer);
 	}else{
 		int value1=atoi(strtok(NULL, " "));
 		int value2=atoi(strtok(NULL, " "));
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]){
 			result=value1/value2;
 		}
 		sprintf(answer,"%d\0",result);
-		printf("client: receive command %s and value %d , %d from server\nSend answer %s back to server\n",operation,value1,value2,answer);
+		printf("client: receive command \"%s %d %d\" from server\n    Send answer %s back to server\n",operation,value1,value2,answer);
 	}
 	send(sockfd, answer, sizeof(answer), 0);
 

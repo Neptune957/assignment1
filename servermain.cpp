@@ -77,7 +77,7 @@ int main(int argc, char *argv[]){
     printf("server: establish a connection from client %s:%d\n",inet_ntoa(client.sin_addr),htons(client.sin_port));
  
     printf("server: Sending support communication protocols \n");
-    if (send(new_fd, "TEXT TCP 1.0\n", 14, 0) == -1){
+    if (send(new_fd, "TEXT TCP 1.0", 13, 0) == -1){
       perror("send");
       printf("server: send error\n");
       shutdown(new_fd, SHUT_RDWR);
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]){
 
       memset(msg,0,MAXSZ);
       readSize=recv(new_fd,&msg,MAXSZ,0);
-      char *finalResponse;
+      char *finalResponse[10];
       char resultString[MAXSZ];
 
       printf("client: my answer to \"%s\" is: %s\n",operationCommand,msg);
@@ -149,10 +149,10 @@ int main(int argc, char *argv[]){
       }
 
       if(strcmp(msg,resultString)==0){
-        finalResponse="OK";
+        finalResponse="Right";
         printf("server: right answer\n");
       }else{
-        finalResponse="ERROR";
+        finalResponse="Wrong";
         printf("server: wrong answer\n");
       }
       send(new_fd, finalResponse, sizeof(finalResponse), 0);
