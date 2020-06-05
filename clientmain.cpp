@@ -15,65 +15,67 @@
 #include <calcLib.h>
 #include "protocol.h"
 
-#define PORT 4950	// the port users will be connecting to
-#define MAXDATASIZE 1500
+#define PORT 4950	//准备要链接服务端的端口号
+#define MAXDATASIZE 1500	//接受来自服务端信息的数组长度
 
 
 int main(int argc, char *argv[]){
   
   	/* Do magic */
-	int sockfd,num;
-	char buf[MAXDATASIZE];
-	struct hostent *he;
-	struct sockaddr_in server;
+	int sockfd;		//客户端的套接字
+	char buf[MAXDATASIZE];	//客户端存储服务端信息的数组
+	struct hostent *he;		//存储服务端的主机信息
+	struct sockaddr_in server;		//存储服务端的地址信息
 
-	int numbytes;  
+	int numbytes;	//存储每次接受来自服务端的字节数多少	
 
-	char s[INET6_ADDRSTRLEN];
-
+	//判断输入参数数量正确与否
 	if (argc != 2) {
 	  	printf("Error: argument number wrong. dir: %s argument num: (%d)\n",argv[0],argc);
 	  	exit(1);
 	}
 
 	printf("client: getting server info\n");
+	//获取服务端主机信息
 	if((he=gethostbyname(argv[1]))==NULL){
 		printf("Error: client cannot get server host info\n");
 		exit(1);
 	}
 
 	printf("client: creating a socket\n");
+	//创建客户端套接字
 	if((sockfd=socket(AF_INET,SOCK_STREAM,0))==-1){
 		printf("Error: client cannot create a socket\n");
 		exit(1);
 	}
 
-	bzero(&server,sizeof(server));
+	bzero(&server,sizeof(server));	//初始化服务地址信息，以免受到之前存过的东西影响
 	server.sin_family=AF_INET;
 	server.sin_port=htons(PORT);
 	server.sin_addr=*((struct in_addr*)he->h_addr);
 
 	printf("client: connecting to server\n");
-	if(connect(sockfd,(struct sockaddr*)&server,sizeof(server))==-1){
+	if(connect(sockfd,(struct sockaddr*)&server,sizeof(server))==-1){	//请求与服务端建立连接
 		printf("Error: client cannot connect to server\n");  
        	exit(1);
 	}
 
 	printf("client: establish a connection to server %s:%d\n",inet_ntoa(server.sin_addr),htons(server.sin_port));
 
-	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
+	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {		//接收来自服务端的第一批信息(即支持的协议)
 	  	printf("Error:client cannot receive data from server\n");
 	  	exit(1);
 	}
 	
-	buf[numbytes] = '\0';
+	buf[numbytes] = '\0';	//为了在后续调用strcmp函数时与字符串常量成功进行比较，即模拟字符串常量以"\0"作为结尾
 	
 	printf("server: support communicating protocols as follows:\n\"%s\"\n",buf);
-	char *serverSupportProtocol;
-	bool supportServerProtocol=false;
+	char *serverSupportProtocol;	//保存服务端支持的协议名
+	bool supportServerProtocol=false;	//标记是否已经从服务端支持的协议堆中找到自己也支持的协议
 
-	serverSupportProtocol = strtok(buf, "\n");
+	serverSupportProtocol = strtok(buf, "\n");	//分割字符串，将一个个协议分割出来
    
+   	//如果找到，则返回OK.如果没找到，则返回Not OK，并终止通讯
    	while( serverSupportProtocol != NULL ) {
      	if(strcmp(serverSupportProtocol,"TEXT TCP 1.0")==0){
      		char *response="OK";
@@ -92,16 +94,16 @@ int main(int argc, char *argv[]){
    	}
 
    	memset(buf,0,sizeof(buf));
-   	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
+   	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {		//接收来自服务端的计算题目
 	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
 	}
-	char *operation;
+	char *operation;	//保存计算类型（加减乘除）
 	operation = strtok(buf, " ");
 	double fresult;
 	int result;
-	char answer[100];
+	char answer[100];	//保存自己计算出的答案
 	if(operation[0]=='f'){
 		double value1=atof(strtok(NULL, " "));
 		double value2=atof(strtok(NULL, " "));
@@ -131,10 +133,10 @@ int main(int argc, char *argv[]){
 		sprintf(answer,"%d\0",result);
 		printf("client: receive command \"%s %d %d\" from server\nclient: send answer %s back to server\n",operation,value1,value2,answer);
 	}
-	send(sockfd, answer, sizeof(answer), 0);
+	send(sockfd, answer, sizeof(answer), 0);	//返回答案给服务端
 
-	memset(buf,0,sizeof(buf));
-	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
+	memset(buf,0,sizeof(buf));		//初始化重新利用接受消息数组
+	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {		//接收服务端计算出的正确答案
 	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
@@ -142,7 +144,7 @@ int main(int argc, char *argv[]){
 	printf("server: the right answer should be %s\n",buf);
 
 	memset(buf,0,sizeof(buf));
-	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
+	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {		//接受服务端返回的计算结果状态(Wrong/Right)
 	  	printf("Error in receiving data from server\n");
 	  	close(sockfd);
 	  	exit(1);
@@ -150,7 +152,7 @@ int main(int argc, char *argv[]){
 	printf("server: %s\n",buf);
 
 
-	close(sockfd);
+	close(sockfd);	//任务完成，关闭连接
 	printf("client: program shutdown.\n");
 
 

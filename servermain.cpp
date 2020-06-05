@@ -140,25 +140,27 @@ int main(int argc, char *argv[]){
 
       memset(msg,0,MAXSZ);    //重新初始化接受客户端的消息容器，来重复使用
       readSize=recv(new_fd,&msg,MAXSZ,0);   //阻塞接收客户端的消息
-      char resultString[MAXSZ];   
+      char resultString[MAXSZ];   //存储服务端的计算结果
 
       printf("client: my answer to \"%s\" is: %s\n",operationCommand,msg);
+      //将之前的计算数值转化为字符串
       if(operation[0]=='f'){
         sprintf(resultString,"%8.8g\0",fresult);
       }else{
         sprintf(resultString,"%d\0",result);
       }
 
-      printf("server: the right answer should be %s",resultString);
-      send(new_fd,resultString,sizeof(resultString),0);
+      printf("server: the right answer should be %s\n",resultString);
+      send(new_fd,resultString,sizeof(resultString),0);   //将服务端的计算结果返回给客户端
 
+      //比较服务端和客户端的计算结果并根据此返回Wrong还是Right给客户端
       if(strcmp(msg,resultString)==0){
         printf("server: right answer\n");
-        memset(resultString,0,sizeof(resultString));
+        memset(resultString,0,sizeof(resultString));  //初始化返回数组，重新利用
         sprintf(resultString,"Right\0");
       }else{
         printf("server: wrong answer\n");
-        memset(resultString,0,sizeof(resultString));
+        memset(resultString,0,sizeof(resultString));  //初始化返回数组，重新利用
         sprintf(resultString,"Wrong\0");
       }
       send(new_fd,resultString,sizeof(resultString),0);
@@ -168,7 +170,7 @@ int main(int argc, char *argv[]){
       printf("server: mission has done. stop connection.\n");
       break;
     }
-    clientCount++;
+    clientCount++;    //将所处理过的客户端数量加一，以计数
   }
 
   return 0;
