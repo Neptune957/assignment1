@@ -150,14 +150,15 @@ int main(int argc, char *argv[]){
       }
 
       printf("server: the right answer should be %s",resultString);
-
       send(new_fd,resultString,sizeof(resultString),0);
-      memset(resultString,0,sizeof(resultString));
+
       if(strcmp(msg,resultString)==0){
         printf("server: right answer\n");
+        memset(resultString,0,sizeof(resultString));
         sprintf(resultString,"Right\0");
       }else{
         printf("server: wrong answer\n");
+        memset(resultString,0,sizeof(resultString));
         sprintf(resultString,"Wrong\0");
       }
       send(new_fd,resultString,sizeof(resultString),0);
