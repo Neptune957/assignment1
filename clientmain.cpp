@@ -68,7 +68,7 @@ int main(int argc, char *argv[]){
 	
 	buf[numbytes] = '\0';
 	
-	printf("server: support communicating protocols as follows:\n    \"%s\"\n",buf);
+	printf("server: support communicating protocols as follows:\n\"%s\"\n",buf);
 	char *serverSupportProtocol;
 	bool supportServerProtocol=false;
 
@@ -139,8 +139,16 @@ int main(int argc, char *argv[]){
 	  	close(sockfd);
 	  	exit(1);
 	}
-	buf[numbytes] = '\0';
-	printf("server: your answer is %s\n",buf);
+	printf("server: the right answer should be %s\n",buf);
+
+	memset(buf,0,sizeof(buf));
+	if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
+	  	printf("Error in receiving data from server\n");
+	  	close(sockfd);
+	  	exit(1);
+	}
+	printf("server: %s\n",buf);
+
 
 	close(sockfd);
 	printf("client: program shutdown.\n");
